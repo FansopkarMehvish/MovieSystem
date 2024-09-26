@@ -9,10 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
@@ -94,11 +96,39 @@ public class MovieService {
         }
     }
 
-    public List<Movie> filterByGenre(String genre){
+    public List<Movie> filterByGenre(String genre) {
         List<Movie> movies = getMovies();
-        Function<String, List<Movie>> filterMovieByGenre = filterGenre -> movies.stream().filter(movie -> movie.getGenre().equalsIgnoreCase(genre)).toList();
-        return filterMovieByGenre.apply(genre);
+
+        Function<String, List<Movie>> filterMovieByGenre = filterGenre ->
+                movies.stream()
+                        .filter(movie -> Optional.ofNullable(movie.getGenre())
+                                .map(g -> g.equalsIgnoreCase(filterGenre))
+                                .orElse(false))
+                        .toList();
+
+        return Optional.ofNullable(filterMovieByGenre.apply(genre))
+                .orElse(List.of());
     }
+
+    public List<Movie> filterByRating(int rating){
+        List<Movie> movies = getMovies();
+        Function<Integer, List<Movie>> filterMovieByGenre = filterGenre -> movies.stream().filter(movie -> movie.getRating()==rating).toList();
+        return filterMovieByGenre.apply(rating);
+    }
+
+    public List<Movie> sortMoviesByRating() {
+        return getMovies().stream()
+                .sorted(Comparator.comparing(Movie::getRating))
+                .collect(Collectors.toList());
+    }
+
+    public List<Movie> sortMoviesByYear() {
+        return getMovies().stream()
+                .sorted(Comparator.comparing(Movie::getYear).reversed())
+                .collect(Collectors.toList());
+    }
+
+
 
 }
 

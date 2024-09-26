@@ -2,7 +2,6 @@ package com.example.MovieRentalSystem.controller;
 
 import com.example.MovieRentalSystem.model.Movie;
 import com.example.MovieRentalSystem.service.MovieService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,4 +67,21 @@ public class MovieController {
     public List<Movie> filterByGenre(@RequestParam String genre){
         return movieService.filterByGenre(genre);
     }
+
+    @PostMapping("/filterByRating")
+    public List<Movie> filterByRating(@RequestParam int rating){
+        return movieService.filterByRating(rating);
+    }
+
+    @GetMapping("/sortByRating")
+    public List<Movie> sortByRating() {
+        return movieService.sortMoviesByRating();
+    }
+
+    @GetMapping("/sortByYear")
+    public List<Movie> sortByYear() {
+        return movieService.sortMoviesByYear();
+    }
+
+
 }
