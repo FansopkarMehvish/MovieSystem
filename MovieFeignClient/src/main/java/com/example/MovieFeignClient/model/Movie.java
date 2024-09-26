@@ -1,5 +1,7 @@
 package com.example.MovieFeignClient.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class Movie {
+    @Id
     private int id;
     private String title;
     private int year;

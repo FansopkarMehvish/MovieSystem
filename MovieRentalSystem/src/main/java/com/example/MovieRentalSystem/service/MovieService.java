@@ -84,6 +84,5 @@ public class MovieService {
         return filterMovieByGenre.apply(genre);
     }
 
-
 }
 
