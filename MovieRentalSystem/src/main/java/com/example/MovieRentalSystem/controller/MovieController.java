@@ -27,11 +27,12 @@ public class MovieController {
 
     @PostMapping("/addMovie")
     public Movie addMovie(@RequestParam String title,
+                          @RequestParam int year,
                           @RequestParam String genre,
-                          @RequestParam LocalDate releaseDate,
+                          @RequestParam int rating,
                           @RequestParam MultipartFile photo){
         try {
-            return movieService.addMovie(title, genre, releaseDate, photo);
+            return movieService.addMovie(title, year, genre, rating, photo );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,6 +56,12 @@ public class MovieController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping("/importFromFeignCSV")
+    public String importFromFeignCSV(@RequestParam String dataFilePath){
+        movieService.importFromFeignCSV(dataFilePath);
+        return "importToDB successful";
     }
 
     @PostMapping("/filterByGenre")

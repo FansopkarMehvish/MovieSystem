@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -21,9 +19,11 @@ public class Movie {
 
     private String title;
 
+    private int year;
+
     private String genre;
 
-    private LocalDate releaseDate;
+    private int rating;
 
     private String movieCoverImagePath;
 }

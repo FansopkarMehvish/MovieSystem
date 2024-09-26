@@ -30,12 +30,12 @@ public class MovieService {
         return movieRepository.findAll();
     }
 
-    public Movie addMovie(String title, String genre, LocalDate releaseDate, MultipartFile photo) throws IOException {
+    public Movie addMovie(String title, int year, String genre, int rating, MultipartFile photo) throws IOException {
         Movie movie = new Movie();
         movie.setTitle(title);
         movie.setGenre(genre);
-        movie.setReleaseDate(releaseDate);
-
+        movie.setYear(year);
+        movie.setRating(rating);
         String filename = UUID.randomUUID() + "_" + photo.getOriginalFilename();
         Path filepath = Paths.get(uploadDir + filename);
         photo.transferTo(filepath);
@@ -50,12 +50,12 @@ public class MovieService {
         try (FileWriter fileWriter = new FileWriter(dataFilePath, true)) {
             File file = new File(dataFilePath);
             if (file.length() == 0) {
-                fileWriter.append("Id, Title, Genre, ReleaseDate, movieCoverImagePath ");
+                fileWriter.append("Id, Title, Year, Genre, Rating, movieCoverImagePath ");
                 fileWriter.append("\n");
             }
 
             for (Movie movie : movies) {
-                fileWriter.append(movie.getId() + "," + movie.getTitle() + "," + movie.getGenre() + "," + movie.getReleaseDate() + "," + movie.getMovieCoverImagePath());
+                fileWriter.append(movie.getId() + "," + movie.getTitle() + "," + movie.getYear() + "," + movie.getGenre() + "," + movie.getRating() +","+ movie.getMovieCoverImagePath());
                 fileWriter.append("\n");
             }
         }
@@ -69,12 +69,28 @@ public class MovieService {
 
             while ((line = bufferedReader.readLine()) != null){
                 String [] data = line.split(",");
-                if(data.length == 5){
-                    Movie movie = new Movie(Long.parseLong(data[0]), data[1], data[2], LocalDate.parse(data[3]), data[4]);
+                if(data.length == 6){
+                    Movie movie = new Movie(Long.parseLong(data[0]), data[1], Integer.parseInt(data[2]), data[3], Integer.parseInt(data[4]), data[5]);
                     movieRepository.save(movie);
                 }
-
             }
+        }
+    }
+
+    public void importFromFeignCSV(String filepath) {
+        File file = new File(filepath);
+        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+            String line;
+            bufferedReader.readLine();
+
+            while ((line = bufferedReader.readLine()) != null){
+                String [] data = line.split(",");
+                    Movie movie = new Movie(Long.parseLong(data[0]), data[1], Integer.parseInt(data[2]), data[3], Integer.parseInt(data[4]), null);
+                    System.out.println(movie);
+                    movieRepository.save(movie);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
