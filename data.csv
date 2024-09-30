@@ -1,6 +1,5 @@
-
+Id, Title, Year, Genre, Rating, movieCoverImagePath 
 1,The Shawshank Redemption,1994,Drama,9,null
-2,The Godfather,1972,Crime,9,null
 3,The Dark Knight,2008,Action,9,null
 4,Pulp Fiction,1994,Crime,8,null
 5,Forrest Gump,1994,Drama,8,null
@@ -19,4 +18,3 @@
 18,Glory,1989,Drama,7,null
 19,The Avengers,2012,Action,8,null
 20,The Lion King,1994,Animation,8,null
-21,Abc,2000,Action,5,C:\Users\mehvishf\Documents\Assessment\MovieRentalSystem\src\main\resources\uploads\6aa16bda-1a36-4ada-9dfd-cb4e24431c2a_employee1.png

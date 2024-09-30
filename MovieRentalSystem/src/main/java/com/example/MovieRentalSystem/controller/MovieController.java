@@ -1,12 +1,16 @@
 package com.example.MovieRentalSystem.controller;
 
+import com.example.MovieRentalSystem.exceptions.FileConversionException;
+import com.example.MovieRentalSystem.exceptions.MovieIdNotFoundException;
+import com.example.MovieRentalSystem.exceptions.MoviesNotFoundException;
 import com.example.MovieRentalSystem.model.Movie;
 import com.example.MovieRentalSystem.service.MovieService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,68 +24,116 @@ public class MovieController {
     }
 
     @GetMapping
-    public List<Movie> getMovies(){
-        return movieService.getMovies();
+    public ResponseEntity<List<Movie>> getMovies() {
+        List<Movie> movies = movieService.getMovies();
+
+        if (movies.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(movies, HttpStatus.OK);
+        }
     }
 
     @PostMapping("/addMovie")
-    public Movie addMovie(@RequestParam String title,
-                          @RequestParam int year,
-                          @RequestParam String genre,
-                          @RequestParam int rating,
-                          @RequestParam MultipartFile photo){
+    public ResponseEntity<?> addMovie(@RequestParam String title,
+                                      @RequestParam int year,
+                                      @RequestParam String genre,
+                                      @RequestParam int rating,
+                                      @RequestParam MultipartFile photo) {
         try {
-            return movieService.addMovie(title, year, genre, rating, photo );
+            Movie movie = movieService.addMovie(title, year, genre, rating, photo);
+            return new ResponseEntity<>(movie, HttpStatus.CREATED);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>("File error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMovie(@PathVariable Long id,
+                                         @RequestParam String title,
+                                         @RequestParam int year,
+                                         @RequestParam String genre,
+                                         @RequestParam int rating,
+                                         @RequestParam MultipartFile photo) {
+        try {
+            Movie updatedMovie = movieService.updateMovie(id, title, year, genre, rating, photo);
+            return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("File error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteMovie(@PathVariable Long id){
+        return movieService.deleteMovie(id);
+    }
+
+    @PostMapping("/importFromFeignCSV")
+    public ResponseEntity<String> importFromFeignCSV(@RequestParam String dataFilePath) {
+        try {
+            movieService.importFromFeignCSV(dataFilePath);
+            return new ResponseEntity<>("Import to DB successful", HttpStatus.OK);
+        } catch (FileConversionException e) {
+            return new ResponseEntity<>("Error importing from CSV: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/exportToCSV")
-    public String exportToCSV(@RequestParam String filepath){
+    public ResponseEntity<String> exportToCSV(@RequestParam String filepath) {
         try {
             movieService.exportToCSV(filepath);
-            return "exportToCSV successful";
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>("Export to CSV successful", HttpStatus.OK);
+        } catch (FileConversionException e) {
+            return new ResponseEntity<>("Error exporting to CSV: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/importToDB")
-    public String importToDB(@RequestParam String dataFilePath){
+    public ResponseEntity<String> importToDB(@RequestParam String dataFilePath) {
         try {
             movieService.importToDB(dataFilePath);
-            return "importToDB successful";
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>("Import to DB successful", HttpStatus.OK);
+        } catch (FileConversionException e) {
+            return new ResponseEntity<>("Error importing from CSV: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/importFromFeignCSV")
-    public String importFromFeignCSV(@RequestParam String dataFilePath){
-        movieService.importFromFeignCSV(dataFilePath);
-        return "importToDB successful";
-    }
-
     @PostMapping("/filterByGenre")
-    public List<Movie> filterByGenre(@RequestParam String genre){
+    public List<Movie> filterByGenre(@RequestParam String genre) {
         return movieService.filterByGenre(genre);
     }
 
     @PostMapping("/filterByRating")
-    public List<Movie> filterByRating(@RequestParam int rating){
+    public List<Movie> filterByRating(@RequestParam int rating) {
         return movieService.filterByRating(rating);
     }
 
     @GetMapping("/sortByRating")
-    public List<Movie> sortByRating() {
-        return movieService.sortMoviesByRating();
+    public ResponseEntity<List<Movie>> sortByRating() {
+        List<Movie> sortedMovies = movieService.sortMoviesByRating();
+
+        if (sortedMovies.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(sortedMovies, HttpStatus.OK);
+        }
     }
 
     @GetMapping("/sortByYear")
-    public List<Movie> sortByYear() {
-        return movieService.sortMoviesByYear();
-    }
+    public ResponseEntity<List<Movie>> sortByYear() {
+        List<Movie> sortedMovies = movieService.sortMoviesByYear();
 
+        if (sortedMovies.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(sortedMovies, HttpStatus.OK);
+        }
+    }
 
 }
