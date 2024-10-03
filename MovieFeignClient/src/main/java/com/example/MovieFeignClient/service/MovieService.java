@@ -37,8 +37,16 @@ public class MovieService {
             }
 
             for (Movie movie : movies) {
-                fileWriter.append(movie.getId() + "," + movie.getTitle() + "," + movie.getYear() + "," + Arrays.stream(movie.getGenre()).findFirst().get() + "," + movie.getRating());
-                fileWriter.append("\n");
+                fileWriter.append(String.valueOf(movie.getId()))
+                        .append(",")
+                        .append(movie.getTitle())
+                        .append(",")
+                        .append(String.valueOf(movie.getYear()))
+                        .append(",")
+                        .append(Arrays.stream(movie.getGenre()).findFirst().get())
+                        .append(",")
+                        .append(String.valueOf(movie.getRating()))
+                        .append("\n");
             }
         }
     }
